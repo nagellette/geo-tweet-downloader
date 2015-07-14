@@ -4,12 +4,20 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import com.negengec.geotweetdownloader.CheckInitialDbState;
+import com.negengec.geotweetdownloader.DbOperations;
+import com.negengec.geotweetdownloader.SettingsReader;
+import com.negengec.geotweetdownloader.SettingsWriter;
 
 import twitter4j.FilterQuery;
 import twitter4j.StallWarning;
@@ -19,11 +27,6 @@ import twitter4j.StatusListener;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
-
-import com.negengec.geotweetdownloader.CheckInitialDbState;
-import com.negengec.geotweetdownloader.DbOperations;
-import com.negengec.geotweetdownloader.SettingsReader;
-import com.negengec.geotweetdownloader.SettingsWriter;
 
 public class GeotweetdownloaderGui {
 
@@ -229,10 +232,8 @@ public class GeotweetdownloaderGui {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					SettingsWriter settingWriter = new SettingsWriter();
-					settingWriter.writeSettings(consumerKey.getText(),
-							consumerSecret.getText(), accessTokken.getText(),
-							accessTokkenSecret.getText(), dbHostUrl.getText(),
-							dbHostPort.getText(), dbName.getText(),
+					settingWriter.writeSettings(consumerKey.getText(), consumerSecret.getText(), accessTokken.getText(),
+							accessTokkenSecret.getText(), dbHostUrl.getText(), dbHostPort.getText(), dbName.getText(),
 							dbUser.getText(), dbUserPassword.getText());
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -253,15 +254,15 @@ public class GeotweetdownloaderGui {
 		btnRun = new JButton("Run!");
 		btnRun.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btnRun.addActionListener(new ActionListener() {
+			private PrintStream out;
+
 			public void actionPerformed(ActionEvent arg0) {
 
 				CheckInitialDbState checkState = new CheckInitialDbState();
-				if(!checkState.checkInitialState(dbHostUrl.getText(),
-						dbHostPort.getText(), dbName.getText(), dbUser.getText(),
-						dbUserPassword.getText())){
-					checkState.createInitialState(dbHostUrl.getText(),
-							dbHostPort.getText(), dbName.getText(), dbUser.getText(),
-							dbUserPassword.getText());
+				if (!checkState.checkInitialState(dbHostUrl.getText(), dbHostPort.getText(), dbName.getText(),
+						dbUser.getText(), dbUserPassword.getText())) {
+					checkState.createInitialState(dbHostUrl.getText(), dbHostPort.getText(), dbName.getText(),
+							dbUser.getText(), dbUserPassword.getText());
 				}
 
 				final SettingsReader settingFileOpen = new SettingsReader();
@@ -269,74 +270,60 @@ public class GeotweetdownloaderGui {
 				final DbOperations dbOperations = new DbOperations();
 
 				ConfigurationBuilder cb = new ConfigurationBuilder();
-				cb.setDebugEnabled(true)
-						.setOAuthConsumerKey(settingFileOpen.getConsumerKey())
-						.setOAuthConsumerSecret(
-								settingFileOpen.getConsumerSecret())
+				cb.setDebugEnabled(true).setOAuthConsumerKey(settingFileOpen.getConsumerKey())
+						.setOAuthConsumerSecret(settingFileOpen.getConsumerSecret())
 						.setOAuthAccessToken(settingFileOpen.getAccessTokken())
-						.setOAuthAccessTokenSecret(
-								settingFileOpen.getAccessTokkenSecret());
+						.setOAuthAccessTokenSecret(settingFileOpen.getAccessTokkenSecret());
 
-				TwitterStream twitterStream = new TwitterStreamFactory(cb
-						.build()).getInstance();
+				TwitterStream twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
+				try {
+					out = new PrintStream(new FileOutputStream("error_log.txt"));
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				StatusListener listener = new StatusListener() {
 					public void onStatus(Status status) {
 
 						if (status.getGeoLocation() != null) {
-							System.out.println("@"
-									+ status.getUser().getScreenName() + " - "
-									+ status.getText() + "location:"
-									+ status.getGeoLocation());
+							System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()
+									+ "location:" + status.getGeoLocation());
+							System.setErr(out);
 
 							String tweetText = status.getText();
 							if (tweetText.contains("'")) {
-								String tweetText1 = tweetText.replaceAll("'",
-										"''");
+								String tweetText1 = tweetText.replaceAll("'", "''");
 								tweetText = tweetText1;
 							}
 
 							tweetUser.setText(status.getUser().getScreenName());
 							tweet.setText(tweetText);
-							Double tempLatDouble = status.getGeoLocation()
-									.getLatitude();
-							Double tempLonDouble = status.getGeoLocation()
-									.getLongitude();
+							Double tempLatDouble = status.getGeoLocation().getLatitude();
+							Double tempLonDouble = status.getGeoLocation().getLongitude();
 							tweetLat.setText(tempLatDouble.toString());
 							tweetLon.setText(tempLonDouble.toString());
 
 							String sql = "INSERT INTO twitter_stream"
 									+ " (TWITTERUSER, TWEET, PROJECTNAME, LAT, LON) VALUES ('"
-									+ status.getUser().getScreenName()
-									+ "' , '" + tweetText + "' , '"
-									+ projectName.getText() + "' , "
-									+ status.getGeoLocation().getLatitude()
-									+ ", "
-									+ status.getGeoLocation().getLongitude()
-									+ ")";
+									+ status.getUser().getScreenName() + "' , '" + tweetText + "' , '"
+									+ projectName.getText() + "' , " + status.getGeoLocation().getLatitude() + ", "
+									+ status.getGeoLocation().getLongitude() + ")";
 
-							dbOperations.runOperations(sql,
-									settingFileOpen.getDbHostUrl(),
-									settingFileOpen.getDbHostPort(),
-									settingFileOpen.getDbName(),
-									settingFileOpen.getDbUser(),
-									settingFileOpen.getDbUserPassword(),
-									"Insert");
+							dbOperations.runOperations(sql, settingFileOpen.getDbHostUrl(),
+									settingFileOpen.getDbHostPort(), settingFileOpen.getDbName(),
+									settingFileOpen.getDbUser(), settingFileOpen.getDbUserPassword(), "Insert");
 						}
 					}
 
-					public void onDeletionNotice(
-							StatusDeletionNotice statusDeletionNotice) {
+					public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
 					}
 
-					public void onTrackLimitationNotice(
-							int numberOfLimitedStatuses) {
-						System.out.println("Got track limitation notice:"
-								+ numberOfLimitedStatuses);
+					public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+						System.out.println("Got track limitation notice:" + numberOfLimitedStatuses);
 					}
 
 					public void onScrubGeo(long userId, long upToStatusId) {
-						System.out.println("Got scrub_geo event userId:"
-								+ userId + " upToStatusId:" + upToStatusId);
+						System.out.println("Got scrub_geo event userId:" + userId + " upToStatusId:" + upToStatusId);
 					}
 
 					public void onStallWarning(StallWarning warning) {
