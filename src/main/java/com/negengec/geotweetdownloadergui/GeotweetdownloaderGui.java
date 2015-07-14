@@ -279,7 +279,6 @@ public class GeotweetdownloaderGui {
 				try {
 					out = new PrintStream(new FileOutputStream("error_log.txt"));
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				StatusListener listener = new StatusListener() {
