@@ -1,7 +1,9 @@
 package com.negengec.geotweetdownloader;
 
-import java.io.File;
-import java.io.IOException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,98 +13,100 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.File;
+import java.io.IOException;
 
 public class SettingsWriter {
 
-	String consumerKey;
-	String consumerSecret;
-	String accessTokken;
-	String accessTokkenSecret;
-	String dbHostUrl;
-	String dbHostPort;
-	String dbName;
-	String dbUser;
-	String dbUserPassword;
+    String consumerKey;
+    String consumerSecret;
+    String accessTokken;
+    String accessTokkenSecret;
+    String dbHostUrl;
+    String dbHostPort;
+    String dbName;
+    String dbUser;
+    String dbUserPassword;
 
-	public void writeSettings(String consumerKey, String consumerSecret,
-			String accessTokken, String accessTokkenSecret, String dbHostUrl,
-			String dbHostPort, String dbName, String dbUser,
-			String dbUserPassword) throws TransformerException {
+    public void writeSettings(String consumerKey, String consumerSecret,
+                              String accessTokken, String accessTokkenSecret, String dbHostUrl,
+                              String dbHostPort, String dbName, String dbUser,
+                              String dbUserPassword) throws TransformerException {
 
-		try {
-			File xmlFile = new File("twitter_download.properties");
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = null;
+        try {
+            String fileName = "twitter_download.properties";
+            String workingDirectory = System.getProperty("user.dir");
+            String absoluteFilePath = workingDirectory + File.separator + "target" + File.separator + "conf" + File.separator + fileName;
+            System.out.println(absoluteFilePath);
 
-			try {
-				doc = dBuilder.parse(xmlFile);
-			} catch (SAXException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+            File xmlFile = new File(absoluteFilePath);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory
+                    .newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = null;
 
-			Node defaultSettings = doc.getElementsByTagName("defaultSettings")
-					.item(0);
-			NodeList list = defaultSettings.getChildNodes();
+            try {
+                doc = dBuilder.parse(xmlFile);
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-			for (int i = 0; i < list.getLength(); i++) {
-				Node node = list.item(i);
+            Node defaultSettings = doc.getElementsByTagName("defaultSettings")
+                    .item(0);
+            NodeList list = defaultSettings.getChildNodes();
 
-				if ("consumerKey".equals(node.getNodeName())) {
-					node.setTextContent(consumerKey);
-				}
+            for (int i = 0; i < list.getLength(); i++) {
+                Node node = list.item(i);
 
-				if ("consumerSecret".equals(node.getNodeName())) {
-					node.setTextContent(consumerSecret);
-				}
+                if ("consumerKey".equals(node.getNodeName())) {
+                    node.setTextContent(consumerKey);
+                }
 
-				if ("accessTokken".equals(node.getNodeName())) {
-					node.setTextContent(accessTokken);
-				}
+                if ("consumerSecret".equals(node.getNodeName())) {
+                    node.setTextContent(consumerSecret);
+                }
 
-				if ("accessTokkenSecret".equals(node.getNodeName())) {
-					node.setTextContent(accessTokkenSecret);
-				}
+                if ("accessTokken".equals(node.getNodeName())) {
+                    node.setTextContent(accessTokken);
+                }
 
-				if ("dbHostUrl".equals(node.getNodeName())) {
-					node.setTextContent(dbHostUrl);
-				}
+                if ("accessTokkenSecret".equals(node.getNodeName())) {
+                    node.setTextContent(accessTokkenSecret);
+                }
 
-				if ("dbHostPort".equals(node.getNodeName())) {
-					node.setTextContent(dbHostPort);
-				}
+                if ("dbHostUrl".equals(node.getNodeName())) {
+                    node.setTextContent(dbHostUrl);
+                }
 
-				if ("dbName".equals(node.getNodeName())) {
-					node.setTextContent(dbName);
-				}
+                if ("dbHostPort".equals(node.getNodeName())) {
+                    node.setTextContent(dbHostPort);
+                }
 
-				if ("dbUser".equals(node.getNodeName())) {
-					node.setTextContent(dbUser);
-				}
+                if ("dbName".equals(node.getNodeName())) {
+                    node.setTextContent(dbName);
+                }
 
-				if ("dbUserPassword".equals(node.getNodeName())) {
-					node.setTextContent(dbUserPassword);
-				}
-				
-				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-				Transformer transformer = transformerFactory.newTransformer();
-				DOMSource source = new DOMSource(doc);
-				StreamResult result = new StreamResult(new File("twitter_download.properties"));
-				transformer.transform(source, result);
+                if ("dbUser".equals(node.getNodeName())) {
+                    node.setTextContent(dbUser);
+                }
 
-			}
+                if ("dbUserPassword".equals(node.getNodeName())) {
+                    node.setTextContent(dbUserPassword);
+                }
 
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(new File("twitter_download.properties"));
+                transformer.transform(source, result);
 
-	}
+            }
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
