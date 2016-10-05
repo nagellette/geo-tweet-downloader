@@ -1,417 +1,304 @@
 package com.negengec.geotweetdownloadergui;
 
-import java.awt.EventQueue;
-import java.awt.Font;
+import com.negengec.geotweetdownloader.CheckInitialDbState;
+import com.negengec.geotweetdownloader.DbOperations;
+import com.negengec.geotweetdownloader.SettingsReader;
+import com.negengec.geotweetdownloader.SettingsWriter;
+import twitter4j.*;
+import twitter4j.conf.ConfigurationBuilder;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
-import com.negengec.geotweetdownloader.CheckInitialDbState;
-import com.negengec.geotweetdownloader.DbOperations;
-import com.negengec.geotweetdownloader.SettingsReader;
-import com.negengec.geotweetdownloader.SettingsWriter;
-
-import twitter4j.FilterQuery;
-import twitter4j.StallWarning;
-import twitter4j.Status;
-import twitter4j.StatusDeletionNotice;
-import twitter4j.StatusListener;
-import twitter4j.TwitterStream;
-import twitter4j.TwitterStreamFactory;
-import twitter4j.conf.ConfigurationBuilder;
-
+/**
+ * Created by nagellette-ws on 04.10.2016.
+ */
 public class GeotweetdownloaderGui {
 
-	private JFrame frame;
-	private JTextField consumerKey;
-	private JTextField consumerSecret;
-	private JTextField accessTokken;
-	private JTextField accessTokkenSecret;
-	private JTextField dbName;
-	private JTextField dbUser;
-	private JTextField dbUserPassword;
-	private JTextField lat2;
-	private JTextField lon2;
-	private JTextField lat1;
-	private JTextField lon1;
-	private JTextField projectName;
-	private JLabel lblNewLabel;
-	private JButton btnRun;
-	private JTextField tweetUser;
-	private JTextField tweet;
-	private JTextField tweetLat;
-	private JTextField tweetLon;
-	private JLabel lblNewLabel_1;
-	private JLabel lblNewLabel_2;
-	private JLabel lblNewLabel_3;
-	private JLabel lblNewLabel_4;
-	private JTextField dbHostPort;
-	private JTextField dbHostUrl;
-	private JLabel lblNewLabel_5;
-	private JLabel lblNewLabel_6;
+    private JTextField consumerKey;
+    private JTextField consumerSecret;
+    private JTextField accessTokken;
+    private JTextField accessTokkenSecret;
+    private JTextField dbHostUrl;
+    private JTextField dbHostPort;
+    private JTextField dbName;
+    private JTextField dbUser;
+    private JTextField dbUserPassword;
+    private JPanel panel1;
+    private JTextField projectName;
+    private JTextField lat1;
+    private JTextField lon1;
+    private JTextField lat2;
+    private JTextField lon2;
+    private JTextField tweetUser;
+    private JTextField tweet;
+    private JTextField tweetLat;
+    private JTextField tweetLon;
+    private JButton updateSettings;
+    private JButton btnRun;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					GeotweetdownloaderGui window = new GeotweetdownloaderGui();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    public static void main(String[] args) {
+        SettingsReader readInitialSettings = new SettingsReader();
+        readInitialSettings.readSettings();
 
-	/**
-	 * Create the application.
-	 */
-	public GeotweetdownloaderGui() {
-		initialize();
-	}
+        JFrame frame = new JFrame("Geo Tweet Downloader");
+        final GeotweetdownloaderGui functionStarter = new GeotweetdownloaderGui();
+        frame.setContentPane(functionStarter.panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		// open file to get initial settings from properties fi
-		SettingsReader readInitialSettings = new SettingsReader();
-		readInitialSettings.readSettings();
-		;
+        functionStarter.consumerKey.setText(readInitialSettings.getConsumerKey());
+        functionStarter.consumerSecret.setText(readInitialSettings.getConsumerSecret());
+        functionStarter.accessTokken.setText(readInitialSettings.getAccessTokken());
+        functionStarter.accessTokkenSecret.setText(readInitialSettings.getAccessTokkenSecret());
+        functionStarter.dbHostUrl.setText(readInitialSettings.getDbHostUrl());
+        functionStarter.dbHostPort.setText(readInitialSettings.getDbHostPort());
+        functionStarter.dbName.setText(readInitialSettings.getDbName());
+        functionStarter.dbUser.setText(readInitialSettings.getDbUser());
+        functionStarter.dbUserPassword.setText(readInitialSettings.getDbUserPassword());
+        functionStarter.lat1.setText("39.9");
+        functionStarter.lon1.setText("25.07");
+        functionStarter.lat2.setText("42.05");
+        functionStarter.lon2.setText("44.6");
 
-		frame = new JFrame();
-		frame.getContentPane().setFont(new Font("Tahoma", Font.BOLD, 11));
-		frame.setBounds(100, 100, 875, 355);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
 
-		consumerKey = new JTextField();
-		consumerKey.setBounds(10, 11, 392, 20);
-		frame.getContentPane().add(consumerKey);
-		consumerKey.setColumns(10);
-		consumerKey.setText(readInitialSettings.getConsumerKey());
+        functionStarter.updateSettings.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                try {
+                    SettingsWriter settingWriter = new SettingsWriter();
+                    settingWriter.writeSettings(functionStarter.consumerKey.getText(), functionStarter.consumerSecret.getText(), functionStarter.accessTokken.getText(),
+                            functionStarter.accessTokkenSecret.getText(), functionStarter.dbHostUrl.getText(), functionStarter.dbHostPort.getText(), functionStarter.dbName.getText(),
+                            functionStarter.dbUser.getText(), functionStarter.dbUserPassword.getText());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-		consumerSecret = new JTextField();
-		consumerSecret.setColumns(10);
-		consumerSecret.setBounds(10, 42, 392, 20);
-		frame.getContentPane().add(consumerSecret);
-		consumerSecret.setText(readInitialSettings.getConsumerSecret());
+        functionStarter.btnRun.addActionListener(new ActionListener() {
+            private PrintStream out;
 
-		accessTokken = new JTextField();
-		accessTokken.setColumns(10);
-		accessTokken.setBounds(10, 73, 392, 20);
-		frame.getContentPane().add(accessTokken);
-		accessTokken.setText(readInitialSettings.getAccessTokken());
+            public void actionPerformed(ActionEvent arg0) {
 
-		accessTokkenSecret = new JTextField();
-		accessTokkenSecret.setColumns(10);
-		accessTokkenSecret.setBounds(10, 104, 392, 20);
-		frame.getContentPane().add(accessTokkenSecret);
-		accessTokkenSecret.setText(readInitialSettings.getAccessTokkenSecret());
+                CheckInitialDbState checkState = new CheckInitialDbState();
+                if (!checkState.checkInitialState(functionStarter.dbHostUrl.getText(), functionStarter.dbHostPort.getText(), functionStarter.dbName.getText(),
+                        functionStarter.dbUser.getText(), functionStarter.dbUserPassword.getText())) {
+                    checkState.createInitialState(functionStarter.dbHostUrl.getText(), functionStarter.dbHostPort.getText(), functionStarter.dbName.getText(),
+                            functionStarter.dbUser.getText(), functionStarter.dbUserPassword.getText());
+                }
 
-		dbName = new JTextField();
-		dbName.setBounds(10, 188, 132, 20);
-		frame.getContentPane().add(dbName);
-		dbName.setColumns(10);
-		dbName.setText(readInitialSettings.getDbName());
+                final SettingsReader settingFileOpen = new SettingsReader();
+                settingFileOpen.readSettings();
+                final DbOperations dbOperations = new DbOperations();
 
-		dbUser = new JTextField();
-		dbUser.setColumns(10);
-		dbUser.setBounds(10, 216, 132, 20);
-		frame.getContentPane().add(dbUser);
-		dbUser.setText(readInitialSettings.getDbUser());
+                ConfigurationBuilder cb = new ConfigurationBuilder();
+                cb.setDebugEnabled(true).setOAuthConsumerKey(settingFileOpen.getConsumerKey())
+                        .setOAuthConsumerSecret(settingFileOpen.getConsumerSecret())
+                        .setOAuthAccessToken(settingFileOpen.getAccessTokken())
+                        .setOAuthAccessTokenSecret(settingFileOpen.getAccessTokkenSecret());
 
-		dbUserPassword = new JTextField();
-		dbUserPassword.setColumns(10);
-		dbUserPassword.setBounds(10, 246, 132, 20);
-		frame.getContentPane().add(dbUserPassword);
-		dbUserPassword.setText(readInitialSettings.getDbUserPassword());
+                TwitterStream twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
+                try {
+                    out = new PrintStream(new FileOutputStream("error_log.txt"));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                StatusListener listener = new StatusListener() {
+                    public void onStatus(Status status) {
 
-		dbHostUrl = new JTextField();
-		dbHostUrl.setColumns(10);
-		dbHostUrl.setBounds(10, 135, 132, 20);
-		frame.getContentPane().add(dbHostUrl);
-		dbHostUrl.setText(readInitialSettings.getDbHostUrl());
+                        if (status.getGeoLocation() != null) {
+                            System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()
+                                    + "location:" + status.getGeoLocation());
+                            System.setErr(out);
 
-		dbHostPort = new JTextField();
-		dbHostPort.setBounds(10, 159, 132, 20);
-		frame.getContentPane().add(dbHostPort);
-		dbHostPort.setColumns(10);
-		dbHostPort.setText(readInitialSettings.getDbHostPort());
+                            String tweetText = status.getText();
+                            if (tweetText.contains("'")) {
+                                String tweetText1 = tweetText.replaceAll("'", "''");
+                                tweetText = tweetText1;
+                            }
 
-		JLabel lblConsumerKey = new JLabel("Consumer Key");
-		lblConsumerKey.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblConsumerKey.setLabelFor(consumerKey);
-		lblConsumerKey.setBounds(412, 11, 95, 14);
-		frame.getContentPane().add(lblConsumerKey);
+                            functionStarter.tweetUser.setText(status.getUser().getScreenName());
+                            functionStarter.tweet.setText(tweetText);
+                            Double tempLatDouble = status.getGeoLocation().getLatitude();
+                            Double tempLonDouble = status.getGeoLocation().getLongitude();
+                            functionStarter.tweetLat.setText(tempLatDouble.toString());
+                            functionStarter.tweetLon.setText(tempLonDouble.toString());
 
-		JLabel lblConsumerSecret = new JLabel("Consumer Secret");
-		lblConsumerSecret.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblConsumerSecret.setLabelFor(consumerSecret);
-		lblConsumerSecret.setBounds(412, 42, 115, 14);
-		frame.getContentPane().add(lblConsumerSecret);
+                            String sql = "INSERT INTO twitter_stream"
+                                    + " (TWITTERUSER, TWEET, PROJECTNAME, LAT, LON) VALUES ('"
+                                    + status.getUser().getScreenName() + "' , '" + tweetText + "' , '"
+                                    + functionStarter.projectName.getText() + "' , " + status.getGeoLocation().getLatitude() + ", "
+                                    + status.getGeoLocation().getLongitude() + ")";
 
-		JLabel lblAccessTokken = new JLabel("Access Tokken");
-		lblAccessTokken.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblAccessTokken.setLabelFor(accessTokken);
-		lblAccessTokken.setBounds(412, 73, 95, 14);
-		frame.getContentPane().add(lblAccessTokken);
+                            dbOperations.runOperations(sql, settingFileOpen.getDbHostUrl(),
+                                    settingFileOpen.getDbHostPort(), settingFileOpen.getDbName(),
+                                    settingFileOpen.getDbUser(), settingFileOpen.getDbUserPassword(), "Insert");
+                        }
+                    }
 
-		JLabel lblAccessTokkenSecret = new JLabel("Access Tokken Secret");
-		lblAccessTokkenSecret.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblAccessTokkenSecret.setLabelFor(accessTokkenSecret);
-		lblAccessTokkenSecret.setBounds(412, 104, 132, 14);
-		frame.getContentPane().add(lblAccessTokkenSecret);
+                    public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+                    }
 
-		JLabel lblDatabaseName = new JLabel("Database Name");
-		lblDatabaseName.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblDatabaseName.setLabelFor(dbName);
-		lblDatabaseName.setBounds(152, 191, 95, 14);
-		frame.getContentPane().add(lblDatabaseName);
+                    public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+                        System.out.println("Got track limitation notice:" + numberOfLimitedStatuses);
+                    }
 
-		JLabel lblDatabaseUser = new JLabel("Database User");
-		lblDatabaseUser.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblDatabaseUser.setLabelFor(dbUser);
-		lblDatabaseUser.setBounds(152, 219, 95, 14);
-		frame.getContentPane().add(lblDatabaseUser);
+                    public void onScrubGeo(long userId, long upToStatusId) {
+                        System.out.println("Got scrub_geo event userId:" + userId + " upToStatusId:" + upToStatusId);
+                    }
 
-		JLabel lblUserPassword = new JLabel("User Password");
-		lblUserPassword.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblUserPassword.setLabelFor(dbUserPassword);
-		lblUserPassword.setBounds(152, 249, 95, 14);
-		frame.getContentPane().add(lblUserPassword);
+                    public void onStallWarning(StallWarning warning) {
+                        System.out.println("Got stall warning:" + warning);
+                    }
 
-		lat2 = new JTextField();
-		lat2.setBounds(562, 73, 86, 20);
-		frame.getContentPane().add(lat2);
-		lat2.setColumns(10);
-		lat2.setText("42.05");
+                    public void onException(Exception ex) {
+                        ex.printStackTrace();
+                    }
+                };
 
-		lon2 = new JTextField();
-		lon2.setBounds(658, 73, 86, 20);
-		frame.getContentPane().add(lon2);
-		lon2.setColumns(10);
-		lon2.setText("44.6");
+                twitterStream.addListener(listener);
 
-		lat1 = new JTextField();
-		lat1.setColumns(10);
-		lat1.setBounds(562, 44, 86, 20);
-		frame.getContentPane().add(lat1);
-		lat1.setText("39.9");
+                double fLat1 = Double.parseDouble(functionStarter.lat1.getText()); // 39.9
+                double fLon1 = Double.parseDouble(functionStarter.lon1.getText()); // 25.07
+                double fLat2 = Double.parseDouble(functionStarter.lat2.getText()); // 42.05
+                double fLon2 = Double.parseDouble(functionStarter.lon2.getText()); // 44.6
 
-		lon1 = new JTextField();
-		lon1.setColumns(10);
-		lon1.setBounds(658, 44, 86, 20);
-		frame.getContentPane().add(lon1);
-		lon1.setText("25.07");
+                double[][] bb = {{fLon1, fLat1}, {fLon2, fLat2}};
 
-		JLabel lblRightDownLatlon = new JLabel("Left down lat/lon");
-		lblRightDownLatlon.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblRightDownLatlon.setLabelFor(lat1);
-		lblRightDownLatlon.setBounds(754, 45, 108, 14);
-		frame.getContentPane().add(lblRightDownLatlon);
+                FilterQuery fq = new FilterQuery();
+                fq.locations(bb);
 
-		JLabel lblLeftUpLatlon = new JLabel("Right up lat/lon");
-		lblLeftUpLatlon.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblLeftUpLatlon.setBounds(754, 76, 108, 14);
-		frame.getContentPane().add(lblLeftUpLatlon);
+                twitterStream.filter(fq);
+            }
+        });
 
-		JButton updateSettings = new JButton("Update \r\nSettings");
-		updateSettings.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					SettingsWriter settingWriter = new SettingsWriter();
-					settingWriter.writeSettings(consumerKey.getText(), consumerSecret.getText(), accessTokken.getText(),
-							accessTokkenSecret.getText(), dbHostUrl.getText(), dbHostPort.getText(), dbName.getText(),
-							dbUser.getText(), dbUserPassword.getText());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		updateSettings.setFont(new Font("Tahoma", Font.BOLD, 11));
-		updateSettings.setVerticalTextPosition(SwingConstants.TOP);
-		updateSettings.setVerticalAlignment(SwingConstants.TOP);
-		updateSettings.setBounds(323, 203, 132, 23);
-		frame.getContentPane().add(updateSettings);
 
-		lblNewLabel = new JLabel("Project Name");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel.setBounds(754, 14, 95, 14);
-		frame.getContentPane().add(lblNewLabel);
+    }
 
-		btnRun = new JButton("Run!");
-		btnRun.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnRun.addActionListener(new ActionListener() {
-			private PrintStream out;
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
 
-			public void actionPerformed(ActionEvent arg0) {
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        panel1 = new JPanel();
+        panel1.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(11, 5, new Insets(0, 0, 0, 0), -1, -1));
+        consumerKey = new JTextField();
+        panel1.add(consumerKey, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        consumerSecret = new JTextField();
+        panel1.add(consumerSecret, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        accessTokken = new JTextField();
+        panel1.add(accessTokken, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        accessTokkenSecret = new JTextField();
+        panel1.add(accessTokkenSecret, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        dbHostUrl = new JTextField();
+        panel1.add(dbHostUrl, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        dbHostPort = new JTextField();
+        panel1.add(dbHostPort, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        dbName = new JTextField();
+        panel1.add(dbName, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        dbUser = new JTextField();
+        panel1.add(dbUser, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        dbUserPassword = new JTextField();
+        dbUserPassword.setText("");
+        panel1.add(dbUserPassword, new com.intellij.uiDesigner.core.GridConstraints(8, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setText("Consumer Key");
+        panel1.add(label1, new com.intellij.uiDesigner.core.GridConstraints(0, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Consumer Secret");
+        panel1.add(label2, new com.intellij.uiDesigner.core.GridConstraints(1, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label3 = new JLabel();
+        label3.setText("Access Tokken");
+        panel1.add(label3, new com.intellij.uiDesigner.core.GridConstraints(2, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setText("Access Tokken Screet");
+        panel1.add(label4, new com.intellij.uiDesigner.core.GridConstraints(3, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label5 = new JLabel();
+        label5.setText("DB Host");
+        panel1.add(label5, new com.intellij.uiDesigner.core.GridConstraints(4, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label6 = new JLabel();
+        label6.setText("DB Port");
+        panel1.add(label6, new com.intellij.uiDesigner.core.GridConstraints(5, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label7 = new JLabel();
+        label7.setText("DB Name");
+        panel1.add(label7, new com.intellij.uiDesigner.core.GridConstraints(6, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label8 = new JLabel();
+        label8.setText("DB User");
+        panel1.add(label8, new com.intellij.uiDesigner.core.GridConstraints(7, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("DB Password");
+        panel1.add(label9, new com.intellij.uiDesigner.core.GridConstraints(8, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        projectName = new JTextField();
+        panel1.add(projectName, new com.intellij.uiDesigner.core.GridConstraints(0, 2, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        lat1 = new JTextField();
+        panel1.add(lat1, new com.intellij.uiDesigner.core.GridConstraints(1, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        lon1 = new JTextField();
+        panel1.add(lon1, new com.intellij.uiDesigner.core.GridConstraints(1, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label10 = new JLabel();
+        label10.setText("Project Name");
+        panel1.add(label10, new com.intellij.uiDesigner.core.GridConstraints(0, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label11 = new JLabel();
+        label11.setText("Left Down lat/lon");
+        panel1.add(label11, new com.intellij.uiDesigner.core.GridConstraints(1, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        lat2 = new JTextField();
+        panel1.add(lat2, new com.intellij.uiDesigner.core.GridConstraints(2, 2, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        lon2 = new JTextField();
+        panel1.add(lon2, new com.intellij.uiDesigner.core.GridConstraints(2, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label12 = new JLabel();
+        label12.setText("Right Up lat/lon");
+        panel1.add(label12, new com.intellij.uiDesigner.core.GridConstraints(2, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        tweetUser = new JTextField();
+        panel1.add(tweetUser, new com.intellij.uiDesigner.core.GridConstraints(10, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        tweet = new JTextField();
+        panel1.add(tweet, new com.intellij.uiDesigner.core.GridConstraints(10, 1, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        tweetLat = new JTextField();
+        panel1.add(tweetLat, new com.intellij.uiDesigner.core.GridConstraints(10, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        tweetLon = new JTextField();
+        panel1.add(tweetLon, new com.intellij.uiDesigner.core.GridConstraints(10, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label13 = new JLabel();
+        label13.setText("User Name");
+        panel1.add(label13, new com.intellij.uiDesigner.core.GridConstraints(9, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label14 = new JLabel();
+        label14.setText("Tweet");
+        panel1.add(label14, new com.intellij.uiDesigner.core.GridConstraints(9, 1, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label15 = new JLabel();
+        label15.setText("Latitude");
+        panel1.add(label15, new com.intellij.uiDesigner.core.GridConstraints(9, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label16 = new JLabel();
+        label16.setText("Longitude");
+        panel1.add(label16, new com.intellij.uiDesigner.core.GridConstraints(9, 4, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        updateSettings = new JButton();
+        updateSettings.setText("Update Settings");
+        panel1.add(updateSettings, new com.intellij.uiDesigner.core.GridConstraints(5, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnRun = new JButton();
+        btnRun.setFont(new Font(btnRun.getFont().getName(), Font.BOLD | Font.ITALIC, btnRun.getFont().getSize()));
+        btnRun.setText("RUN!");
+        panel1.add(btnRun, new com.intellij.uiDesigner.core.GridConstraints(6, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label17 = new JLabel();
+        label17.setText("Functions");
+        panel1.add(label17, new com.intellij.uiDesigner.core.GridConstraints(4, 3, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
 
-				CheckInitialDbState checkState = new CheckInitialDbState();
-				if (!checkState.checkInitialState(dbHostUrl.getText(), dbHostPort.getText(), dbName.getText(),
-						dbUser.getText(), dbUserPassword.getText())) {
-					checkState.createInitialState(dbHostUrl.getText(), dbHostPort.getText(), dbName.getText(),
-							dbUser.getText(), dbUserPassword.getText());
-				}
-
-				final SettingsReader settingFileOpen = new SettingsReader();
-				settingFileOpen.readSettings();
-				final DbOperations dbOperations = new DbOperations();
-
-				ConfigurationBuilder cb = new ConfigurationBuilder();
-				cb.setDebugEnabled(true).setOAuthConsumerKey(settingFileOpen.getConsumerKey())
-						.setOAuthConsumerSecret(settingFileOpen.getConsumerSecret())
-						.setOAuthAccessToken(settingFileOpen.getAccessTokken())
-						.setOAuthAccessTokenSecret(settingFileOpen.getAccessTokkenSecret());
-
-				TwitterStream twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
-				try {
-					out = new PrintStream(new FileOutputStream("error_log.txt"));
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-				StatusListener listener = new StatusListener() {
-					public void onStatus(Status status) {
-
-						if (status.getGeoLocation() != null) {
-							System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()
-									+ "location:" + status.getGeoLocation());
-							System.setErr(out);
-
-							String tweetText = status.getText();
-							if (tweetText.contains("'")) {
-								String tweetText1 = tweetText.replaceAll("'", "''");
-								tweetText = tweetText1;
-							}
-
-							tweetUser.setText(status.getUser().getScreenName());
-							tweet.setText(tweetText);
-							Double tempLatDouble = status.getGeoLocation().getLatitude();
-							Double tempLonDouble = status.getGeoLocation().getLongitude();
-							tweetLat.setText(tempLatDouble.toString());
-							tweetLon.setText(tempLonDouble.toString());
-
-							String sql = "INSERT INTO twitter_stream"
-									+ " (TWITTERUSER, TWEET, PROJECTNAME, LAT, LON) VALUES ('"
-									+ status.getUser().getScreenName() + "' , '" + tweetText + "' , '"
-									+ projectName.getText() + "' , " + status.getGeoLocation().getLatitude() + ", "
-									+ status.getGeoLocation().getLongitude() + ")";
-
-							dbOperations.runOperations(sql, settingFileOpen.getDbHostUrl(),
-									settingFileOpen.getDbHostPort(), settingFileOpen.getDbName(),
-									settingFileOpen.getDbUser(), settingFileOpen.getDbUserPassword(), "Insert");
-						}
-					}
-
-					public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-					}
-
-					public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
-						System.out.println("Got track limitation notice:" + numberOfLimitedStatuses);
-					}
-
-					public void onScrubGeo(long userId, long upToStatusId) {
-						System.out.println("Got scrub_geo event userId:" + userId + " upToStatusId:" + upToStatusId);
-					}
-
-					public void onStallWarning(StallWarning warning) {
-						System.out.println("Got stall warning:" + warning);
-					}
-
-					public void onException(Exception ex) {
-						ex.printStackTrace();
-					}
-				};
-
-				twitterStream.addListener(listener);
-
-				double fLat1 = Double.parseDouble(lat1.getText()); // 39.9
-				double fLon1 = Double.parseDouble(lon1.getText()); // 25.07
-				double fLat2 = Double.parseDouble(lat2.getText()); // 42.05
-				double fLon2 = Double.parseDouble(lon2.getText()); // 44.6
-
-				double[][] bb = { { fLon1, fLat1 }, { fLon2, fLat2 } };
-
-				FilterQuery fq = new FilterQuery();
-				fq.locations(bb);
-
-				twitterStream.filter(fq);
-			}
-		});
-
-		projectName = new JTextField();
-		projectName.setBounds(562, 11, 182, 20);
-		frame.getContentPane().add(projectName);
-		projectName.setColumns(10);
-		lblNewLabel.setLabelFor(projectName);
-		lblNewLabel.setLabelFor(projectName);
-		btnRun.setBounds(754, 203, 91, 23);
-		frame.getContentPane().add(btnRun);
-
-		tweetUser = new JTextField();
-		tweetUser.setBounds(10, 302, 86, 20);
-		frame.getContentPane().add(tweetUser);
-		tweetUser.setColumns(10);
-
-		tweet = new JTextField();
-		tweet.setBounds(106, 302, 542, 20);
-		frame.getContentPane().add(tweet);
-		tweet.setColumns(10);
-
-		tweetLat = new JTextField();
-		tweetLat.setBounds(658, 302, 86, 20);
-		frame.getContentPane().add(tweetLat);
-		tweetLat.setColumns(10);
-
-		tweetLon = new JTextField();
-		tweetLon.setBounds(754, 302, 86, 20);
-		frame.getContentPane().add(tweetLon);
-		tweetLon.setColumns(10);
-
-		lblNewLabel_1 = new JLabel("User Name");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_1.setBounds(10, 277, 86, 14);
-		frame.getContentPane().add(lblNewLabel_1);
-
-		lblNewLabel_2 = new JLabel("Tweet");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_2.setBounds(106, 277, 108, 14);
-		frame.getContentPane().add(lblNewLabel_2);
-
-		lblNewLabel_3 = new JLabel("Lat");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_3.setBounds(658, 277, 46, 14);
-		frame.getContentPane().add(lblNewLabel_3);
-
-		lblNewLabel_4 = new JLabel("Lon");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_4.setBounds(754, 277, 46, 14);
-		frame.getContentPane().add(lblNewLabel_4);
-
-		lblNewLabel_5 = new JLabel("DB Host URL");
-		lblNewLabel_5.setLabelFor(dbHostUrl);
-		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_5.setBounds(152, 138, 95, 14);
-		frame.getContentPane().add(lblNewLabel_5);
-
-		lblNewLabel_6 = new JLabel("DB Host Port");
-		lblNewLabel_6.setLabelFor(dbHostPort);
-		lblNewLabel_6.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_6.setBounds(152, 162, 95, 14);
-		frame.getContentPane().add(lblNewLabel_6);
-
-		SettingsReader settingFileRead = new SettingsReader();
-		settingFileRead.readSettings();
-	}
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return panel1;
+    }
 }
