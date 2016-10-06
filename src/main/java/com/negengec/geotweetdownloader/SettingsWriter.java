@@ -35,8 +35,7 @@ public class SettingsWriter {
 
         try {
             String fileName = "twitter_download.properties";
-            String workingDirectory = System.getProperty("user.dir");
-            String absoluteFilePath = workingDirectory + File.separator + "target" + File.separator + "conf" + File.separator + fileName;
+            String absoluteFilePath = "." + File.separator + "target" + File.separator + "conf" + File.separator + fileName;
             System.out.println(absoluteFilePath);
 
             File xmlFile = new File(absoluteFilePath);
