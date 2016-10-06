@@ -25,11 +25,21 @@ public class SettingsReader {
     String dbUserPassword;
 
     public void readSettings() {
+        String absoluteFilePath = "";
 
         try {
             String fileName = "twitter_download.properties";
-            String absoluteFilePath = "." + File.separator + "target" + File.separator + "conf" + File.separator + fileName;
-            System.out.println(absoluteFilePath);
+            System.out.println(System.getProperty("os.name"));
+            if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                absoluteFilePath = "." + File.separator + "target" + File.separator + "conf" + File.separator + fileName;
+                System.out.println(absoluteFilePath);
+            } else if (System.getProperty("os.name").toLowerCase().contains("windows")){
+                absoluteFilePath = "conf" + File.separator + fileName;
+                System.out.println(absoluteFilePath);
+            } else {
+                System.out.println("Your operating system does not supported. Abort.");
+                System.exit(0);
+            }
 
             File xmlFile = new File(absoluteFilePath);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory
