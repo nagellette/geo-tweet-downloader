@@ -25,8 +25,11 @@ public class SettingsReader {
     String dbUserPassword;
 
     public void readSettings() {
-        String absoluteFilePath = "";
 
+        //TODO: relative path definition with OS check should move to another class, duplicate with writer class
+        //TODO: Mac OS should be added
+
+        String absoluteFilePath = "";
         try {
             String fileName = "twitter_download.properties";
             System.out.println(System.getProperty("os.name"));
@@ -96,69 +99,69 @@ public class SettingsReader {
         return consumerKey;
     }
 
-    public String getConsumerSecret() {
-        return consumerSecret;
-    }
-
-    public String getAccessTokken() {
-        return accessTokken;
-    }
-
-    public String getAccessTokkenSecret() {
-        return accessTokkenSecret;
-    }
-
-    public String getDbHostUrl() {
-        return dbHostUrl;
-    }
-
-    public String getDbHostPort() {
-        return dbHostPort;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public String getDbUser() {
-        return dbUser;
-    }
-
-    public String getDbUserPassword() {
-        return dbUserPassword;
-    }
-
     // Setters
     public void setConsumerKey(String consumerKey) {
         this.consumerKey = consumerKey;
+    }
+
+    public String getConsumerSecret() {
+        return consumerSecret;
     }
 
     public void setConsumerSecret(String consumerSecret) {
         this.consumerSecret = consumerSecret;
     }
 
+    public String getAccessTokken() {
+        return accessTokken;
+    }
+
     public void setAccessTokken(String accessTokken) {
         this.accessTokken = accessTokken;
+    }
+
+    public String getAccessTokkenSecret() {
+        return accessTokkenSecret;
     }
 
     public void setAccessTokkenSecret(String accessTokkenSecret) {
         this.accessTokkenSecret = accessTokkenSecret;
     }
 
+    public String getDbHostUrl() {
+        return dbHostUrl;
+    }
+
     public void setDbHostUrl(String dbHostUrl) {
         this.dbHostUrl = dbHostUrl;
+    }
+
+    public String getDbHostPort() {
+        return dbHostPort;
     }
 
     public void setDbHostPort(String dbHostPort) {
         this.dbHostPort = dbHostPort;
     }
 
+    public String getDbName() {
+        return dbName;
+    }
+
     public void setDbName(String dbName) {
         this.dbName = dbName;
     }
 
+    public String getDbUser() {
+        return dbUser;
+    }
+
     public void setDbUser(String dbUser) {
         this.dbUser = dbUser;
+    }
+
+    public String getDbUserPassword() {
+        return dbUserPassword;
     }
 
     public void setDbUserPassword(String dbUserPassword) {

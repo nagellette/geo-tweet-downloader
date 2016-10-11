@@ -33,6 +33,9 @@ public class SettingsWriter {
                               String dbHostPort, String dbName, String dbUser,
                               String dbUserPassword) throws TransformerException {
 
+        //TODO: relative path definition with OS check should move to another class, duplicate with reader class
+        //TODO: Mac OS should be added
+
         String absoluteFilePath = "";
 
         try {
