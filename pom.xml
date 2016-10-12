@@ -92,6 +92,12 @@
                     <include>*.properties</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>src/main/resources/world_borders/</directory>
+                <includes>
+                    <include>*.*</include>
+                </includes>
+            </resource>
         </resources>
         <plugins>
             <plugin>
