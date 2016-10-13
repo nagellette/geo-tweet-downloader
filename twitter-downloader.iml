@@ -25,7 +25,6 @@
     <orderEntry type="library" name="Maven: org.geotools:gt-shapefile:15.1" level="project" />
     <orderEntry type="library" name="Maven: org.geotools:gt-data:15.1" level="project" />
     <orderEntry type="library" name="Maven: org.geotools:gt-main:15.1" level="project" />
-    <orderEntry type="library" name="Maven: org.geotools:gt-api:15.1" level="project" />
     <orderEntry type="library" name="Maven: com.vividsolutions:jts:1.13" level="project" />
     <orderEntry type="library" name="Maven: org.jdom:jdom:1.1.3" level="project" />
     <orderEntry type="library" name="Maven: javax.media:jai_core:1.1.3" level="project" />
@@ -82,5 +81,11 @@
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.1" level="project" />
     <orderEntry type="library" name="Maven: org.geotools:gt-cql:15.1" level="project" />
     <orderEntry type="library" name="Maven: com.miglayout:miglayout:swing:3.7" level="project" />
+    <orderEntry type="library" name="Maven: org.geotools.jdbc:gt-jdbc-postgis:15.1" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:9.4-1201-jdbc41" level="project" />
+    <orderEntry type="library" name="Maven: org.geotools:gt-jdbc:15.1" level="project" />
+    <orderEntry type="library" name="Maven: org.geotools:gt-api:15.1" level="project" />
+    <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:1.4" level="project" />
+    <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
   </component>
 </module>
