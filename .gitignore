@@ -58,3 +58,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 /target/
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+.DS_Store
+.idea
